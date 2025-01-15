@@ -2,12 +2,12 @@
   "name": "gpt-response-analyzer",
   "version": "1.0.0",
   "description": "chatGPT script to analyze responses",
-  "main": "index.js",
+  "main": "readExcel.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "cortisiko",
-  "license": "ISC",
+  "license": "ISC",  
+    "type": "module",
   "devDependencies": {
     "openai": "^4.78.1",
     "xlsx": "^0.18.5"
