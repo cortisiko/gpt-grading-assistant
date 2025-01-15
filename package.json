@@ -1,0 +1,16 @@
+{
+  "name": "gpt-response-analyzer",
+  "version": "1.0.0",
+  "description": "chatGPT script to analyze responses",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "cortisiko",
+  "license": "ISC",
+  "devDependencies": {
+    "openai": "^4.78.1",
+    "xlsx": "^0.18.5"
+  }
+
+}
