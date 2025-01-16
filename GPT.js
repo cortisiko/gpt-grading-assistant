@@ -3,18 +3,15 @@ import xlsx from "xlsx";
 import fs from "fs";
 
 async function readText() {
-  const filename = "";
+  const filename = "data.txt";
   try {
-    const data = fs.readFile(filename, "utf8");
-    return JSON.parse(data);
+    let data = fs.readFileSync(filename, "utf8");
+    return data;
   } catch (error) {
     console.error(`Error reading ${filename}: ${error}`);
     return [];
   }
 }
-const openai = new OpenAI({
-  apiKey: "",
-});
 
 async function readExcelData() {
   try {
@@ -35,19 +32,21 @@ async function readExcelData() {
 
 async function ChatGPTRequestTest() {
   const blah = await readExcelData();
-  console.log(blah);
+  const dataFromText = await readText();
+  const formattedExcelData = JSON.stringify(blah, null, 2);
+  // console.log("Here is the DATA", dataFromText);
+  // console.log("Here is the EXECEL DATA", blah);
 
   const stream = await openai.chat.completions.create({
     model: "gpt-4o-mini",
     messages: [
       {
         role: "system",
-        content:
-          "Grade the data like you are a skilled Mobile QA engineer. You should first Check to see if the content is written by AI. If it is then you should at the end make mention of this",
+        content: `Grade the data like you are a skilled Mobile QA engineer. You should first Check to see if the content is written by AI. If it is then you should at the end make mention of this. ${dataFromText}`,
       },
       {
         role: "user",
-        content: `${blah}`,
+        content: `Here is the content: ${formattedExcelData}`,
       },
     ],
   });
