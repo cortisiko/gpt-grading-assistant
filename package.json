@@ -2,7 +2,6 @@
   "name": "gpt-response-analyzer",
   "version": "1.0.0",
   "description": "chatGPT script to analyze responses",
-  "main": "readExcel.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },

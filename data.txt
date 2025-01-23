@@ -1,5 +1,4 @@
-
-I want you to be my grading assistant. Your task is to grade each question on a beginner, intermediate, and advanced scale. The questions are geared at assessing the mobile testing levels of respondants.  I am going to give you a list of five questions. Each question will have a max value of 3 points. If it is:
+I want you to be my grading assistant. Your first task is to grade each question on a beginner, intermediate, and advanced scale. The questions are geared at assessing the mobile testing levels of respondants.  I am going to give you a list of five questions. Each question will have a max value of 3 points. If it is:
 -  a beginner level question it should be 1 point
 - Intermediate level question it should be 2 points
 - Advanced should be 3 points
@@ -11,7 +10,7 @@ Intermediate	2	Solid understanding; some practical insight but lacks advanced kn
 Advanced	3	Comprehensive, insightful answers
 
 
-Below is the breakdown of the scoring for each question based on levels:
+Next see below for the breakdown of the scoring for each question based on levels:
 Question 1: Feature Testing on a Release Build
 Imagine that the team you are supporting has developed a feature that was thoroughly tested on the feature branch. Now that the feature is in the release validation phase, how would you ensure that it works as expected in the release build? Please outline the steps you would take.
 Beginner: 1 pt
@@ -89,9 +88,12 @@ Advanced: 3 pt
     5. Checks to see if the test failures are consistent with the main branch. 
 
 
-First you need to output the Name of the individual and then do your assessment 
-
-Finally as your output structure the responses so it can be put into a PDF. 
+Things you should do at the end:
+1. Keep your grading format consistent. The grading must be a value. For example 10/18 or 12/18. Do NOT give me an average
+2. Keep the asssessment output in a PDF format. Consistently do this
+3. Next Based on the responses of each question, give a final summary of whether the responses are AI generated
+4. Next you need to output the Name of the individual and then do your assessment 
+5. Finally as your output structure the responses so it can be put into a PDF. 
 You should show me something like:
 Name:
 Assessment results:
