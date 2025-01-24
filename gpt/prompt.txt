@@ -1,0 +1,101 @@
+I want you to be my grading assistant. Your first task is to grade each question on a beginner, intermediate, and advanced scale. The questions are geared at assessing the mobile testing levels of respondants.  I am going to give you a list of five questions. Each question will have a max value of 3 points. If it is:
+-  a beginner level question it should be 1 point
+- Intermediate level question it should be 2 points
+- Advanced should be 3 points
+
+Here is a table breakdown of what i mean
+Level	Points per Question	Description
+Beginner	1	Limited understanding; answers lack depth or fail to address key criteria.
+Intermediate	2	Solid understanding; some practical insight but lacks advanced know hows.
+Advanced	3	Comprehensive, insightful answers
+
+
+Next see below for the breakdown of the scoring for each question based on levels:
+Question 1: Feature Testing on a Release Build
+Imagine that the team you are supporting has developed a feature that was thoroughly tested on the feature branch. Now that the feature is in the release validation phase, how would you ensure that it works as expected in the release build? Please outline the steps you would take.
+Beginner: 1 pt
+* Mentions basic testing, such as running manual tests or validating known issues.
+* Misses critical steps like checking dependencies or reviewing prior test results.
+Intermediate: 2 pt
+* Describes structured testing, including regression tests, exploratory testing, or sanity checks.
+* Mentions device coverage and automated tests.
+Advanced: 3 pt
+* Mentions not repeating the same exact tests that were done during feature testing
+* Revists test plan and retests critical bugs that were previously reported
+* Mentions running any automated tests that were created once the feature was QA signed off prior to any manual validation. 
+Question 2: Testing Across Devices
+Our apps are used by people on both iOS and Android devices. Some users have older models, while others use the latest versions. When deciding which phones to test, how would you select the models, and what specific features would you emphasize testing for each type of phone?
+Beginner: 1 pt
+* Suggests generic testing on old and new devices without explaining priorities.
+Intermediate: 2 pt
+* Proposes testing based on user analytics, feature relevance, or OS versions.
+Advanced: 3 pt
+* Cites data-driven decisions. For instance querying our device data to see the most popular and least popular devices.
+* Mentions testing performance, compatibility, and network conditions just to name a few.
+* Prioritizes testing on old devices to ensure the apps are performant and the same applies on new hardware on the latest devices.
+Question 3: Automating vs. Manual Testing
+The team you are working with is implementing deep linking to a new feature in the apps. For example, When you tap on a deep link it takes you to a new notifications screen where you see transactions, tokens and NFTs notifications. While manually testing this type of feature is straightforward, automating deep linking tests can be time-consuming. What is your approach for determining which parts of the feature to automate and which parts to test manually?
+
+Beginner: 1 pt
+* Suggests automating without discussing feasibility or automation return on investment.
+Intermediate: 2 pt
+* Balances automation and manual efforts, citing repetitive vs. one off cases.
+Advanced: 3 pt
+* Proposes a hybrid approach, prioritizing regression and critical flows for automation while leaving exploratory or edge cases for manual testing.
+* Specifies the importance of when manual testing should be done vs automation. Also explains if there are limitations around what should be automated then manual testing should be done. 
+Question 4: Bug Fix Validation + Understanding when to test on a sim vs real device. Also knowing when to automate a bug fix vs manually verifying
+
+Imagine you have a bug fix to test, and you need to approve it before the release cut deadline. What type of hardware(e.g., simulators, real devices) would you choose to test the bug, and why would you make those choices?
+Beginner: 1 pt
+* Suggests using either simulators or real devices without clear justification.
+Intermediate: 2 pt
+* Recommends testing on both hardware types, explaining the importance of testing on real devices vs simulators/emulators 
+Advanced: 3 pt
+* Strategically chooses based on bug nature (For instance, if the bug affects the UI, performance related a simulator would not be the best choice vs if the bug is centered around functionality and either hardware will work).
+* Based on severity of the bug, engineer mentions communicating to team that the bug fix will need to be part of the release even though a release was cut. 
+
+Question 5: Device Nuiances. Knowing the difference. 
+
+Users report that our apps do not request permission to utilize the camera functionality on some devices. How would you start investigating this?
+Beginner: 1 pt
+* Suggests restarting app or checking logs without a clear plan.
+Intermediate: 2 pt
+* Calls out Android being the only platform requesting camera permissions
+Advanced: 3 pt
+* Outlines a structured investigation: reproducing issue across Android devices/OS versions. Calls out Android being the only platform requesting camera permissions
+* Mentions adjusting the device settings to see if it is a device level permission vs app level permissions. 
+* Specifically tests Android devices 
+
+
+Question 6: Understanding how to debug and isolate e2e tests failures on CI
+What is your approach if you are running e2e tests on CI (in our case, Bitrise) and noticed test failures? Walk through your process step by step.
+Beginner: 1 pt
+* Suggests basic troubleshooting like rerunning the failed test without additional steps.
+* Mentions checking the CI logs but lacks a structured plan.
+* Does not differentiate between a test issue and a CI issue.
+Intermediate: 2 pt
+* Identifies potential causes of test failures (e.g., flaky tests, CI environment issues).
+* Suggests examining detailed logs and retrying the failing workflow.
+* Mentions verifying environment configurations (e.g., required dependencies, test data setup).
+* Suggests re-running the workflow locally to confirm reproducibility.
+
+Advanced: 3 pt
+* Outlines a clear plan:
+    1. Reproduces the failure locally by running the failing test(s) 
+    2. Analyzes CI logs to identify patterns (e.g., network issues, environment mismatches).
+    3. Suggests isolating flaky tests by rerunning only the failing test multiple times. 
+    4. Documents the findings for future reference and proposes a long-term fix (e.g., increasing timeouts, improving retry logic).
+    5. Checks to see if the test failures are consistent with the main branch. 
+
+
+Things you should do at the end:
+1. Keep your grading format consistent. The grading must be a value. For example 10/18 or 12/18. Do NOT give me an average
+2. Keep the asssessment output in a PDF format. Consistently do this
+3. Next Based on the responses of each question, give a final summary of whether the responses are AI generated
+4. Next you need to output the Name of the individual and then do your assessment 
+5. Finally as your output structure the responses so it can be put into a PDF. 
+You should show me something like:
+Name:
+Assessment results:
+Grade:
+Areas to improve
