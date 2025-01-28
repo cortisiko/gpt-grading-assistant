@@ -93,9 +93,26 @@ Things you should do at the end:
 2. Keep the asssessment output in a PDF format. Consistently do this
 3. Next Based on the responses of each question, give a final summary of whether the responses are AI generated
 4. Next you need to output the Name of the individual and then do your assessment 
-5. Finally as your output structure the responses so it can be put into a PDF. 
-You should show me something like:
-Name:
-Assessment results:
-Grade:
-Areas to improve
+5. Please be sure to make sure you strictly follow this format. The grade x/"18" is important. 
+6. If a question is unanswered still grade it. The grade should be 0
+7. Grade all questions. Do not skip this. 
+8. Do three iterations of this and make sure you report back on the best iteration that follows the structure i laid out. 
+    - Only report once. Do not output three times. 
+9. Your assessment should be something like this:
+"---
+
+### Name: Tester 1
+
+**Assessment results:**
+
+1. Feature Testing on a Release Build - Intermediate: 2 points
+2. Testing Across Devices - Beginner: 1 point
+3. Automating vs. Manual Testing - Beginner: 1 point
+4. Bug Fix Validation - Intermediate: 2 points
+5. Device Nuances - Advanced: 3 points
+6. Understanding how to debug and isolate e2e tests failures on CI - Intermediate: 2 pt
+**Grade:** 9/18"
+
+10. Finally as your output structure the responses so it can be put into a PDF. 
+
+
