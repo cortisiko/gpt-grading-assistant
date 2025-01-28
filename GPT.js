@@ -1,7 +1,8 @@
 import OpenAI from "openai";
 import xlsx from "xlsx";
 import fs from "fs";
-
+import { generateResponse } from "./gpt/chat-gpt.js";
+import { readExcelData, exportToPDF } from "./file-operations/read-excel.js";
 async function readText() {
   const filename = "data.txt";
   try {
@@ -13,7 +14,7 @@ async function readText() {
   }
 }
 
-async function readExcelData() {
+async function readExcelDatas() {
   try {
     // Use readFile from the xlsx default export
     const workbook = xlsx.readFile("spreadsheet.xlsx");
@@ -31,18 +32,18 @@ async function readExcelData() {
 }
 
 async function ChatGPTRequestTest() {
-  const blah = await readExcelData();
+  const blah = await readExcelDatas();
   const dataFromText = await readText();
   const formattedExcelData = JSON.stringify(blah, null, 2);
   // console.log("Here is the DATA", dataFromText);
   // console.log("Here is the EXECEL DATA", blah);
 
   const stream = await openai.chat.completions.create({
-    model: "gpt-4o-mini",
+    model: "gpt-4o",
     messages: [
       {
         role: "system",
-        content: `Grade the data like you are a skilled Mobile QA engineer. You should first Check to see if the content is written by AI. If it is then you should at the end make mention of this. ${dataFromText}`,
+        content: `Grade the data like you are a skilled Mobile QA engineer. Before you start analyzing, you should first Check to see if the content you are parsing is written by you or your model. If it is then you should at the end make mention of this. Here is the data ${dataFromText}`,
       },
       {
         role: "user",
@@ -52,7 +53,12 @@ async function ChatGPTRequestTest() {
   });
   console.log(stream.choices[0].message);
 }
-await ChatGPTRequestTest();
+// await ChatGPTRequestTest();
+
+const data = await readExcelData();
+let blah = await generateResponse(data);
+console.log(blah);
+const pdf = await exportToPDF(blah);
 // export default class ChatGPT {
 //   readPrompt() {      //   { role: "user", content: "Suggest 5 catchy titles for blog post" },
 
