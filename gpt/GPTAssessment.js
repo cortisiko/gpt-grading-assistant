@@ -35,6 +35,7 @@ const generateResponse = async (dataFromSpreadSheet) => {
     });
 
     console.log(stream.choices[0].message.content);
+    return stream.choices[0].message.content;
   } catch (error) {
     console.error("Error generating response:", error);
   }
