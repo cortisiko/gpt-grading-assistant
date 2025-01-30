@@ -1,8 +1,9 @@
 import OpenAI from "openai";
 import xlsx from "xlsx";
 import fs from "fs";
-import { generateResponse } from "./gpt/chat-gpt.js";
-import { readExcelData, exportToPDF } from "./file-operations/read-excel.js";
+import { generateResponse } from "./gpt/GPTAssessment.js";
+import { readExcelData } from "./file-operations/ParseExcel.js";
+import { parseAndCreatePDFs } from "./file-operations/ExportToPDF.js";
 async function readText() {
   const filename = "data.txt";
   try {
@@ -35,8 +36,6 @@ async function ChatGPTRequestTest() {
   const blah = await readExcelDatas();
   const dataFromText = await readText();
   const formattedExcelData = JSON.stringify(blah, null, 2);
-  // console.log("Here is the DATA", dataFromText);
-  // console.log("Here is the EXECEL DATA", blah);
 
   const stream = await openai.chat.completions.create({
     model: "gpt-4o",
@@ -56,16 +55,5 @@ async function ChatGPTRequestTest() {
 // await ChatGPTRequestTest();
 
 const data = await readExcelData();
-let blah = await generateResponse(data);
-console.log(blah);
-const pdf = await exportToPDF(blah);
-// export default class ChatGPT {
-//   readPrompt() {      //   { role: "user", content: "Suggest 5 catchy titles for blog post" },
-
-//     // Todo
-//   }
-
-//   AnalyzeResults() {
-//     // Todo
-//   }
-// }
+let aiResponse = await generateResponse(data);
+const pdf = await parseAndCreatePDFs(aiResponse);
