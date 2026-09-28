@@ -9,8 +9,13 @@ if (!fs.existsSync(resultsDir)) {
 }
 
 async function createIndividualPDF(candidate) {
-  const { name, questions, totalPoints, ai_generated: aiGeneratedAssessment } =
-    candidate;
+  const {
+    name,
+    questions,
+    totalPoints,
+    areas_to_improve: areasToImprove,
+    ai_generated: aiGeneratedAssessment,
+  } = candidate;
   const fileName = `${resultsDir}/assessment_results_${name.replace(
     /\s+/g,
     "_"
@@ -56,6 +61,17 @@ async function createIndividualPDF(candidate) {
       );
     doc.fontSize(11).font("Helvetica").text(question.rationale).moveDown(0.5);
   });
+
+  // Add Areas to Improve
+  if (areasToImprove.length > 0) {
+    doc
+      .moveDown(0.5)
+      .fontSize(14)
+      .font("Helvetica-Bold")
+      .text("Areas to Improve:")
+      .moveDown(0.5);
+    doc.fontSize(11).font("Helvetica").list(areasToImprove).moveDown(0.5);
+  }
 
   // Add AI-generated assessment
   doc

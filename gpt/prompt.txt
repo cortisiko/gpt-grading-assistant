@@ -94,4 +94,5 @@ Grading rules:
 3. Pick the single level whose criteria the answer best meets. An answer only earns a level if it meets that level's criteria; when in doubt between two levels, choose the lower one.
 4. Base each rationale only on what the candidate actually wrote, referencing the specific rubric criteria met or missed.
 5. Use the candidate's name exactly as it appears in the data.
-6. After grading, assess whether the candidate's responses as a whole appear AI-generated and briefly explain why.
+6. List the candidate's areas to improve: specific, actionable gaps drawn from rubric criteria they missed, most impactful first. Do not list a gap for a question graded Advanced.
+7. After grading, assess whether the candidate's responses as a whole appear AI-generated and briefly explain why.

@@ -54,6 +54,10 @@ export const gradingResponseFormat = {
                   additionalProperties: false,
                 },
               },
+              areas_to_improve: {
+                type: "array",
+                items: { type: "string" },
+              },
               ai_generated: {
                 type: "object",
                 properties: {
@@ -64,7 +68,7 @@ export const gradingResponseFormat = {
                 additionalProperties: false,
               },
             },
-            required: ["name", "questions", "ai_generated"],
+            required: ["name", "questions", "areas_to_improve", "ai_generated"],
             additionalProperties: false,
           },
         },
