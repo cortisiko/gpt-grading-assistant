@@ -1,5 +1,6 @@
 import fs from "fs";
 import PDFDocument from "pdfkit";
+import { MAX_POINTS } from "../gpt/GradingSchema.js";
 
 // Ensure the Results directory exists
 const resultsDir = "./Results";
@@ -7,7 +8,9 @@ if (!fs.existsSync(resultsDir)) {
   fs.mkdirSync(resultsDir, { recursive: true });
 }
 
-async function createIndividualPDF(name, grade, assessmentResults) {
+async function createIndividualPDF(candidate) {
+  const { name, questions, totalPoints, ai_generated: aiGeneratedAssessment } =
+    candidate;
   const fileName = `${resultsDir}/assessment_results_${name.replace(
     /\s+/g,
     "_"
@@ -30,7 +33,11 @@ async function createIndividualPDF(name, grade, assessmentResults) {
   doc.fontSize(16).font("Helvetica-Bold").text(`Name: ${name}`).moveDown();
 
   // Add Grade
-  doc.fontSize(14).font("Helvetica-Bold").text(`Grade: ${grade}`).moveDown(1);
+  doc
+    .fontSize(14)
+    .font("Helvetica-Bold")
+    .text(`Grade: ${totalPoints}/${MAX_POINTS}`)
+    .moveDown(1);
 
   // Add Assessment Results
   doc
@@ -39,9 +46,28 @@ async function createIndividualPDF(name, grade, assessmentResults) {
     .text("Assessment Results:")
     .moveDown(0.5);
 
-  assessmentResults.forEach((result) => {
-    doc.fontSize(12).font("Helvetica").text(result.trim()).moveDown(0.3);
+  questions.forEach((question) => {
+    const pointsLabel = question.points === 1 ? "point" : "points";
+    doc
+      .fontSize(12)
+      .font("Helvetica-Bold")
+      .text(
+        `${question.questionNumber}. ${question.title} - ${question.level}: ${question.points} ${pointsLabel}`
+      );
+    doc.fontSize(11).font("Helvetica").text(question.rationale).moveDown(0.5);
   });
+
+  // Add AI-generated assessment
+  doc
+    .moveDown(0.5)
+    .fontSize(14)
+    .font("Helvetica-Bold")
+    .text(
+      `Likely AI-generated: ${
+        aiGeneratedAssessment.likely_ai_generated ? "Yes" : "No"
+      }`
+    );
+  doc.fontSize(11).font("Helvetica").text(aiGeneratedAssessment.explanation);
 
   // Finalize the PDF when the stream closes
   doc.end();
@@ -53,44 +79,16 @@ async function createIndividualPDF(name, grade, assessmentResults) {
   });
 }
 
-async function parseAndCreatePDFs(data) {
-  if (!data || typeof data !== "string") {
-    console.error("❌ Invalid data: content must be a string.");
+async function createCandidatePDFs(candidates) {
+  if (!Array.isArray(candidates) || candidates.length === 0) {
+    console.error("❌ Invalid data: expected a non-empty array of candidates.");
     return;
   }
 
-  // Split the content into sections based on "---"
-  const sections = data.split("---").map((section) => section.trim());
-
-  for (const section of sections) {
-    if (section.startsWith("### Name")) {
-      // Extract Name
-      const nameMatch = section.match(/^### Name: (.+)$/m);
-      const name = nameMatch ? nameMatch[1] : "Unknown";
-
-      // Extract Grade
-      const gradeMatch = section.match(/\*\*Grade:\*\* ([0-9]+\/[0-9]+)/m);
-      const grade = gradeMatch ? gradeMatch[1] : "N/A";
-
-      // Extract Assessment Results
-      const resultsStartIndex = section.indexOf("**Assessment results:**");
-      const gradeIndex = section.indexOf("**Grade:**");
-      let assessmentResults = [];
-
-      if (resultsStartIndex !== -1 && gradeIndex !== -1) {
-        const resultsText = section
-          .substring(
-            resultsStartIndex + "**Assessment results:**".length,
-            gradeIndex
-          )
-          .trim();
-        assessmentResults = resultsText.split("\n").map((line) => line.trim());
-      }
-
-      // Create PDF for this person (wait for it to finish before starting the next)
-      await createIndividualPDF(name, grade, assessmentResults);
-    }
+  // Create PDFs sequentially (wait for each to finish before starting the next)
+  for (const candidate of candidates) {
+    await createIndividualPDF(candidate);
   }
 }
 
-export { parseAndCreatePDFs };
+export { createCandidatePDFs };

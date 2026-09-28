@@ -1,9 +1,9 @@
 import OpenAI from "openai";
 import xlsx from "xlsx";
 import fs from "fs";
-import { generateResponse } from "./gpt/GPTAssessment.js";
+import { gradeCandidateResponses } from "./gpt/GPTAssessment.js";
 import { readExcelData } from "./file-operations/ParseExcel.js";
-import { parseAndCreatePDFs } from "./file-operations/ExportToPDF.js";
+import { createCandidatePDFs } from "./file-operations/ExportToPDF.js";
 async function readText() {
   const filename = "data.txt";
   try {
@@ -55,5 +55,5 @@ async function ChatGPTRequestTest() {
 // await ChatGPTRequestTest();
 
 const data = await readExcelData();
-let aiResponse = await generateResponse(data);
-const pdf = await parseAndCreatePDFs(aiResponse);
+const gradedCandidates = await gradeCandidateResponses(data);
+await createCandidatePDFs(gradedCandidates);
