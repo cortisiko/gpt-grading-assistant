@@ -51,39 +51,117 @@ const addPointsToCandidate = (candidate) => {
   return { ...candidate, questions, totalPoints };
 };
 
+// Even at temperature 0 the API is not fully deterministic, so a borderline
+// question can flip between levels. Grading several times and taking the
+// majority level per question keeps the final grade stable.
+const GRADING_RUNS = 5;
+
+const requestGrades = async (prompt, spreadsheetJson) => {
+  const completion = await openai.chat.completions.create({
+    model: MODEL,
+    temperature: 0,
+    response_format: gradingResponseFormat,
+    messages: [
+      {
+        role: "system",
+        content: `You are a skilled Mobile QA engineer acting as a grading assistant. Grade strictly against the rubric below.\n\n${prompt}`,
+      },
+      {
+        role: "user",
+        content: `Here are the candidate responses as JSON:\n${spreadsheetJson}`,
+      },
+    ],
+  });
+
+  // A change in system_fingerprint means OpenAI changed the backend, which can shift grades.
+  console.log(`system_fingerprint: ${completion.system_fingerprint}`);
+
+  const { message, finish_reason: finishReason } = completion.choices[0];
+  if (message.refusal) {
+    throw new Error(`Model refused: ${message.refusal}`);
+  }
+  if (finishReason !== "stop") {
+    throw new Error(`Incomplete response (finish_reason: ${finishReason})`);
+  }
+
+  return JSON.parse(message.content).candidates;
+};
+
+// Most common level wins; a tie goes to the lower level, matching the rubric's
+// "when in doubt, choose the lower one" rule.
+const pickMajorityLevel = (levels) => {
+  const voteCounts = new Map();
+  levels.forEach((level) =>
+    voteCounts.set(level, (voteCounts.get(level) ?? 0) + 1)
+  );
+  return [...voteCounts.entries()].sort(
+    ([levelA, votesA], [levelB, votesB]) =>
+      votesB - votesA || LEVEL_POINTS[levelA] - LEVEL_POINTS[levelB]
+  )[0][0];
+};
+
+// Merges one candidate's results from every run into a single result. Each
+// question takes the majority level (with a rationale from a run that chose
+// that level); areas to improve and the AI-generated verdict come from the
+// run that agreed with the majority on the most questions.
+const combineCandidateRuns = (name, candidateRuns) => {
+  const questions = QUESTION_TITLES.map((title, index) => {
+    const questionNumber = index + 1;
+    const grades = candidateRuns
+      .map((run) =>
+        run.questions.find((grade) => grade.question_number === questionNumber)
+      )
+      .filter(Boolean);
+    if (grades.length === 0) return undefined;
+
+    const levels = grades.map((grade) => grade.level);
+    const majorityLevel = pickMajorityLevel(levels);
+    if (new Set(levels).size > 1) {
+      console.log(
+        `⚠️  ${name}, question ${questionNumber}: split vote [${levels.join(", ")}] → ${majorityLevel}`
+      );
+    }
+    return grades.find((grade) => grade.level === majorityLevel);
+  }).filter(Boolean);
+
+  const countMajorityMatches = (run) =>
+    questions.filter((majorityGrade) =>
+      run.questions.some(
+        (grade) =>
+          grade.question_number === majorityGrade.question_number &&
+          grade.level === majorityGrade.level
+      )
+    ).length;
+  const mostRepresentativeRun = candidateRuns.reduce((bestRun, run) =>
+    countMajorityMatches(run) > countMajorityMatches(bestRun) ? run : bestRun
+  );
+
+  return {
+    name,
+    questions,
+    areas_to_improve: mostRepresentativeRun.areas_to_improve,
+    ai_generated: mostRepresentativeRun.ai_generated,
+  };
+};
+
 const gradeCandidateResponses = async (spreadsheetJson) => {
   try {
     const prompt = await readPrompt();
+    const runs = await Promise.all(
+      Array.from({ length: GRADING_RUNS }, () =>
+        requestGrades(prompt, spreadsheetJson)
+      )
+    );
 
-    const completion = await openai.chat.completions.create({
-      model: MODEL,
-      temperature: 0,
-      response_format: gradingResponseFormat,
-      messages: [
-        {
-          role: "system",
-          content: `You are a skilled Mobile QA engineer acting as a grading assistant. Grade strictly against the rubric below.\n\n${prompt}`,
-        },
-        {
-          role: "user",
-          content: `Here are the candidate responses as JSON:\n${spreadsheetJson}`,
-        },
-      ],
+    const runsByCandidateName = new Map();
+    runs.flat().forEach((candidate) => {
+      const candidateRuns = runsByCandidateName.get(candidate.name) ?? [];
+      runsByCandidateName.set(candidate.name, [...candidateRuns, candidate]);
     });
 
-    // Changes in system_fingerprint explain run-to-run differences despite the fixed seed.
-    console.log(`system_fingerprint: ${completion.system_fingerprint}`);
-
-    const { message, finish_reason: finishReason } = completion.choices[0];
-    if (message.refusal) {
-      throw new Error(`Model refused: ${message.refusal}`);
-    }
-    if (finishReason !== "stop") {
-      throw new Error(`Incomplete response (finish_reason: ${finishReason})`);
-    }
-
-    const { candidates } = JSON.parse(message.content);
-    return candidates.map(addPointsToCandidate);
+    return [...runsByCandidateName.entries()].map(([name, candidateRuns]) =>
+      addPointsToCandidate(combineCandidateRuns(name, candidateRuns))
+    );
   } catch (error) {
     console.error("Error grading candidate responses:", error);
     return [];
